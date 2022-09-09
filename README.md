@@ -7,9 +7,9 @@
 
 Проверяем на трёх устройствах с разной ОС
 
-**Windows**: get-computerinfo -property csname
+**Windows**: `get-computerinfo -property csname`
 
-**Linux**: hostnamectl status
+**Linux**: `hostnamectl status`
 
 Смотрим `static name`
 
@@ -34,9 +34,9 @@ host-name ...
 
 Проверяем на трёх устройствах с разной ОС
 
-**Windows**: get-computerinfo -property csdomain
+**Windows**: `get-computerinfo -property csdomain`
 
-**Linux**: dnsdomainname
+**Linux**: `dnsdomainname`
 
 **vyos**: 
 
