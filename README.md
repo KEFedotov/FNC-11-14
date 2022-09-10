@@ -1,3 +1,5 @@
+WSERVER, 
+
 ## B1 Создание Инфраструктуры
 ### B1.M1 тех документация не запрашивалась
 
@@ -7,13 +9,13 @@
 
 Проверяем на трёх устройствах с разной ОС
 
-**Windows**: `get-computerinfo -property csname`
+**Windows**: `get-computerinfo -property csname` - OHIOWSERVER	ohioad
 
-**Linux**: `hostnamectl status`
+**Linux**: `hostnamectl status` ATHLANTALSRV	athlappsrv
 
 Смотрим `static name`
 
-**vyos**: 
+**vyos**: OHIOSW	ohioswitch
 
 ```shell
 configure //если еще не в режиме конфига
@@ -28,7 +30,7 @@ host-name ...
 
 Если видим перед значением выше `>` - конфиг не применён - значит аспект не выполнен
 
-**OPNsense**: `hostname -s`
+**OPNsense**: `hostname -s` ATHLANTAFW	athfirewall
 
 **Аспект + если все проверки успешны**
 
@@ -36,58 +38,74 @@ host-name ...
 
 Проверяем на трёх устройствах с разной ОС
 
-**Windows**: `get-computerinfo -property csdomain`
+**Windows**: `get-computerinfo -property csdomain` OHIOWSERVER osng.local
 
-**Linux**: `dnsdomainname`
-
-**vyos**: 
-
-```shell
-configure //если еще не в режиме конфига
-show system domain-name
-```
-
-В vyos должны увидеть обязательно
-
-```
-domain-name ...
-```
-
-Если видим перед значением выше `+` - конфиг не применён - значит аспект не выполнен
-
-**OPNsense**: `hostname -d`
+через графу на WSERVER: app+web+www -> one IP (or cname), athfw -> ip, ohiosw -> ip
 
 **Аспект + если все проверки успешны**
 
-### B1.M4 Все устройства доступны по DNS именам
+### B1.M4 Все устройства доступны по DNS именам (проверка если 19)
+
+WSERVER -> ping (app.asng.local, athfw.osng.local, **ohiosw.osng.local**, **ohiofw.osng.local**)
+
+Если 19 + -> app.asng.local, athfw.osng.local, **ohiosw.osng.local**, **ohiofw.osng.local**
+
+Если 19 - -> **ohiosw.osng.local**, **ohiofw.osng.local**
 
 На трёх устройствах с разной ОС пингуем самих себя по FQDN
-
-**Примечание:** на vyos пинг делаем из операционного режима
 
 **Аспект + если все 3 проверки успешны**
 
 ### B1.M5 Названия сетей заданы верно
 
-На сетевом оборудовании
-
 **vyos**: `show interfaces ethernet`
+
+OHIOSW -> OWAN_NET, OSRV_NET, OCLI_NET
+
+ATHLANTASW -> AFW_NET, ASRV_NET, ACLI_NET
 
 ищем в выводе `description` с верным значением
 
-### B1.M6 На ath_firewall заданы верные адреса
+### B1.M6 На athfw заданы верные адреса
 
-**OPNsense**: `ifconfig`
+**AFW**
 
-**Аспект + если все 3 проверки успешны**
+LAN -> 10.10.10.1/30
+
+OPT1 (gre) -> 1.1.1.2/30
+
+WAN -> 178.207.179.6/29
+
+**OFW**
+
+LAN -> 10.10.0.1/30
+
+OPT1 (gre) -> 1.1.1.1/30
+
+WAN -> 77.34.141.141/22
+
+**Аспект + если все проверки успешны**
 
 ### B1.M7 на ath-switch заданы верные адреса
 
 **vyos**: `show interfaces ethernet`
 
+eth0 -> 10.10.10.2/30
+
+eth1 -> 192.168.11.1/26
+
+eth2 -> 192.168.12.1/24
+
 ### B1.M8 на OHIO-switch заданы верные адреса
 
 **vyos**: `show interfaces ethernet`
+
+
+eth0 -> 10.10.10.2/30
+
+eth1 -> 172.16.1.1/26
+
+eth2 -> 172.16.2.1/24
 
 **Аспект + если совпадают ВСЕ параметры**
 
@@ -95,21 +113,17 @@ domain-name ...
 
 **OPNsense**: `ifconfig` 
 
+LAN -> 10.10.0.1/30
+
+OPT1(gre) -> 1.1.1.1/30
+
+WAN -> 77.34.141.141/22
+
 **Аспект + если совпадают ВСЕ параметры**
 
 ### B1.M10 На OHIO-WSERVER разверут DNS сервер
 
-На OHIO-WSERVER
-
-**Windows**
-
-```
-Get-DnsServer Setting
-```
-
-Исчем в Computer Info имя этой тачки, а в AllIPAddress её же IP
-
-**Аспект + если совпадают ВСЕ параметры**
+На WSERVER -> SM -> DNS, если ОК -> ОК
 
 ### B1.M11 На DNS-сервере настроен форвардинг на 8.8.8.8
 
@@ -117,37 +131,37 @@ Get-DnsServer Setting
 
 В выводе должны найти 8.8.8.8
 
-**Linux**: `sudo cat /etc/named/named.conf | grep -A 5 '8.8.8.8'`
-
-Вывод не должен быть пустой
-
-**Аспект + если вывод верный**
-
-### B1.M12 На OHIO-WSERVER разверут DHCP сервер  Pool 1 верный
+### B1.M12 На WSERVER разверут DHCP сервер  Pool 1 верный
 
 На OHIO-WSERVER
 
 **Windows**
 
-```
-Get-DhcpServerv4Scope
-Get-DhcpServerv4OptionValue
-```
+Смотрим графику:
+
+- pool 172.16.2.0 255.255.255.0 OHIO_CLI 25-100
+- router 172.16.2.1
+- dns 172.16.1.7
+- DN - osng.local
 
 Ищем что по заданию
 
 **Аспект + если совпадают ВСЕ параметры**
 
-### B1.M13 На OHIO-WSERVER разверут DHCP сервер  Pool 2 верный
+### B1.M13 На ATHLANTA-SW разверут DHCP сервер  Pool 2 верный
 
-На OHIO-WSERVER
-
-**Windows**
+На ATHLANTA-SW
 
 ```
-Get-DhcpServerv4Scope
-Get-DhcpServerv4OptionValue
+show service dhcp-server
 ```
+
+- name ATHLANTA
+- subnet 192.168.12.0/24
+- routeer 192.168.12.1
+- dns 172.16.1.7
+- dn - osng.loca
+- range - 192.168.12.13-33
 
 Ищем что по заданию
 
@@ -162,7 +176,9 @@ Get-DhcpServerv4OptionValue
 show service dhcp-relay
 ```
 
-Должны увидеть IP dhcp-сервера и интерфейс, смотрящий на клиентов
+- eth1
+- eth2
+- 172.16.1.7
 
 **Важно:** если перед выводом `+` - конфиг не применён и аспект не засчитывается
 
@@ -172,7 +188,8 @@ show service dhcp-relay
 
 **Win**: Get-NetIPadress
 
-Чекаем IP - должен быть в сооттветствующем диапазоне и prefix - dhcp
+- address 192.168.12.13-33
+- prefix - dhcp
 
 **Аспект + если совпадают ВСЕ параметры**
 
@@ -181,47 +198,55 @@ show service dhcp-relay
 
 **Win**: Get-NetIPadress
 
-Чекаем IP - должен быть в сооттветствующем диапазоне и prefix - dhcp
+- address 172.16.2.25-100
+- prefix - dhcp
 
 **Аспект + если совпадают ВСЕ параметры**
 
 ### B1.M17 В домене создана необходимая структура
 
-На OHIO-WSERVER
+На WSERVER
 
 Смотрим графой в users & compucters AD
 
+domain_users ->
+  - directors
+    - athlanta_dir -> mikhail
+    - ohio_dir -> aleksey
+  - programmers
+    - athlanta_programmer -> kirill
+    - ohio_programmer -> anton
 
 **Аспект + если совпадают ВСЕ параметры**
 
 ### B1.M18 Все клиенские машины включены в домен osng.local
 
-На На OHIO-WSERVER
+На WSERVER
 
-```
-Get-DnsServerResourceRecord -ZoneName ...
-```
+- ATHWPC
+- OHIOLCLI
+- OHIOWINCLI
 
-Проверяем наличие всех тачек, которые там должны быть и обязательно TimeStamp (если он 0, значит запись создана искуственно и с тачкой скорее всего не связана)
+LCLI -> 
+terminal -> aleksey@osng.local
+
+Если 2/3 -> OK
 
 **Аспект + если совпадают ВСЕ параметры**
 
 ### B1.M19  GRE туннель между FW_OHIO: 1.1.1.1/30  и FW_ATHLANTA: 1.1.1.2/30
 
-На чём FW_OHIO и FW_ATHLANTA???
+OHIO_FW
 
-Если Vyos:
+ifconfig -> ip на правильных интерфейс GRE
 
-```
-show interfaces tunnel
-```
+ping 1.1.1.2
 
-Чекаем:
+ATHLANTA_FW
 
-- Инкапсуляцию (GRE)
-- Source-address (физический IP текущей тачки)
-- remote (физический IP тачки на другой стороне туннеля)
-- address (туннельный IP этой тачки)
+ifconfig -> ip на правильных интерфейс GRE
+
+ping 1.1.1.2
 
 Пингуем ту сторону туннеля (туннельный IP по топологии)
 
@@ -231,11 +256,33 @@ show interfaces tunnel
 
 Правильнее прочекать на любом из роутеров
 
+OHIOSW
+
+```
+ip route
+```
+
+- 192.168.11.0/26
+- 192.168.12.0/24
+
+ATHSW
+
+```
+ip route
+```
+
+- 10.10.10.0/30
+- 192.168.11.0/26
+- 192.168.12.0/24
+
 на Vyos в операционнном режиме
 
 ```
 ip route
 ```
+- 10.10.0.0/30
+- 172.16.1.0/26
+- 172.16.2.0/24
 
 Ищем все нужные сети. **Важно** - удаленные сети, должны приехать по протоколу **zebra**
 
@@ -249,36 +296,42 @@ ip route
 curl http://www.osng.local
 ```
 
-Тут видим гору писанины, похожей на html
+The OSN Games main site
 
 ```
 curl https://www.osng.local
 ```
 
-Тут видим гору писанины, похожей на html, но без ошибок
+Тут видим не гору писанины, похожей на html, с траблой по сертификату
 
-### B1.M22
+### B1.M22 ssh до всех Linux ecnhjqcnd
 
-с любых linux/vyos тачек цепляемся по ссх на любую linux тачку
+LSRV
+
+ssh vyos@athsw.osng.local
+
+ssh root@athfw.osng.local
 
 **Аспект + если ВСЕ проверки ОК**
 
 ### B1.M23
 
-С любого вин клиента пытаемся цепляться по RDP на ближайший вин-сервер
+WCLI
+
+rdp
+
+ohioad.osng.local
+
+administrator:P@ssw0rd
 
 **Аспект + если ВСЕ проверки ОК**
 
 ### B1.M24
 
-На шаре (если Шинда)
+WCLI
 
-```
-Get-FileShare
-```
+лезем в проводник и смотрим шару с папками юзеров
 
-Смотрим нужные, dir'ом чекаем внутренности (должны быть папки юзероф)
-
-На клиентах смотрим, что шара приехала
+пробуем создать в макхаиль файл
 
 **Аспект + если ВСЕ проверки ОК**
