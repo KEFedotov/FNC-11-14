@@ -462,6 +462,8 @@ ath_user
 
 ### C1.M12 URL панели управления: http://web.osng.local
 
+c Athlanta CLI
+
 С браузера в любой клиентской таче лезем на страницу http://web.osng.local
 
 если увидели вход в панель значит ОК
