@@ -347,6 +347,7 @@ WCLI
 docker ps -a | grep 'nextcloud'
 ```
 
+Если его нет тогда M1, M2, M5, M6-11 - 0
 
 ### C1.M2 контейнер nextcloud_main: 
 
@@ -363,10 +364,12 @@ docker ps -a | grep 'nextcloud_main'
 **На ATHLANTA_LSRV:**
 
 ```shell
-docker ps -a | grep 'postgres_nextcloud'
+docker ps -a | grep 'postgres'
 ```
 
 долны увидеть контейнер с именем `postgres_nextcloud`
+
+Если в выводе пусто -> M3, M4 - 0
 
 ### C1.M4 название базы: ath_nextcloud
 
@@ -411,12 +414,14 @@ docker ps | grep 'nextcloud_main'
 Сразу после перезагрузки смотрим оба контейнера
 
 ```shell
-docker ps 
+docker ps | egrep '(nextcloud|postgres)'
 ```
 
 должно быть UP в обоих случаях
 
-### C1.M7 необходимые группы созданы
+Если 
+
+### C1.M8 необходимые группы созданы
 
 Лезем на http://nextcloud.osng.local:13337 -> если получилось, тогда M10 тоже +
 
@@ -432,7 +437,7 @@ docker ps
 
 ath_user
 
-### C1.M8 необходимые пользователи созданы
+### C1.M9 необходимые пользователи созданы
 
 Ищем пользователей
 
@@ -445,17 +450,17 @@ ath_user
   - Mail: sslivov@osng.ru
   - Группа: ath_user
 
-### C1.M9 Share
+### C1.M10 Share
 
 Смотрим доступные общие ресурсы и кому они разрешены
 
 Должен быть каталог Share доступный всем
 
-### C1.M10 http://nextcloud.osng.local:13337
+### C1.M11 http://nextcloud.osng.local:13337
 
 Проверяем доступность (на самом деле уже проверили)
 
-### C1.M11 URL панели управления: http://web.osng.local
+### C1.M12 URL панели управления: http://web.osng.local
 
 С браузера в любой клиентской таче лезем на страницу http://web.osng.local
 
@@ -463,62 +468,62 @@ ath_user
 
 Если панель не доступна значит - M12, M14, 
 
-### C1.M12 Автор сервиса: admin@osng.ru
+### C1.M13 Автор сервиса: admin@osng.ru
 
 смотрим panel/docker-compose.yml (в /home/user)
 
-### C1.M13 Внутреняя сеть 172.16.20.0/24
+### C1.M14 Внутреняя сеть 172.16.20.0/24
 
 `docker network ls` -> ищем сеть panel
 `docker network inspect <id>`
 
 Ищем сетку 172.16.20.0/24
 
-### C1.M14 пользователь game_admin создан, utkin_code и kuznetsov_code созданы
+### C1.M15 пользователь game_admin создан, utkin_code и kuznetsov_code созданы
 
 Настройки -> Users
 
-### C1.M15 внутренняя сеть ноды  172.16.21.0/24
+### C1.M16 внутренняя сеть ноды  172.16.21.0/24
 
 `docker network ls` -> ищем сеть wings
 `docker network inspect <id>`
 
 Ищем сетку 172.16.21.0/24
 
-### C1.M16 alias: firstgamenode,  диапазон портов: 27000-27025
+### C1.M17 alias: firstgamenode,  диапазон портов: 27000-27025
 
 В панели Nodes -> Allocation -> IP alisas Port
 
-### C1.M17 Сервер Minecraft_Server_1 создан
+### C1.M18 Сервер Minecraft_Server_1 создан
 
 В панели: Servers -> Minecraft_Server_1
 
-### C1.M18 Владелец сервера: game_admin
+### C1.M19 Владелец сервера: game_admin
 
 Servers -> Minecraft_Server_1 -> Owner
 
 Ищем game_admin
 
-### C1.M19 Port: 27013
+### C1.M20 Port: 27013
 
 Connection Alias - ищем 27013
 
-### C1.M20 Ram: 2GB
+### C1.M21 Ram: 2GB
 
 Memory - 2048
 
-### C1.M21 Disk: 4GB
+### C1.M22 Disk: 4GB
 
 Disk Space - 4096
 
-### C1.M22 Swap: 1GB
+### C1.M23 Swap: 1GB
 
 Build Config -> Alloc Swap
 
-### C1.M23 Nest: Minecraft
+### C1.M24 Nest: Minecraft
 
 Startup Conf -> Service Config
 
-### C1.M24 Egg: Vanilla Minecraft
+### C1.M25 Egg: Vanilla Minecraft
 
 Startup Conf -> Service Config
